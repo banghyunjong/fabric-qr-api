@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 // CORS 설정: Vercel 배포 시 CLIENT_URL 환경 변수를 사용합니다.
 // CLIENT_URL은 Vercel 프로젝트 환경 변수에 설정해야 합니다.
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000', // 로컬 개발용 기본값
+    origin: "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
