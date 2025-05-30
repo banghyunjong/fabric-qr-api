@@ -15,12 +15,34 @@ const app = express();
 // PORT는 로컬 개발 환경에서만 사용되며, Vercel에서는 무시됩니다.
 const PORT = process.env.PORT || 5000;
 
+// CORS 설정 업데이트:
+// 모바일 클라이언트의 Vercel 배포 URL을 명시적으로 허용합니다.
+// 또한, 로컬 개발 환경을 위해 localhost:3000도 함께 허용합니다.
+// process.env.CLIENT_URL 환경 변수를 사용하여 Vercel에 배포된 클라이언트 URL을 지정할 수 있습니다.
+const allowedOrigins = [
+    'https://fabric-qr-system.vercel.app', // <-- 당신의 모바일 클라이언트 Vercel 도메인!
+    'http://localhost:3000', // 로컬 개발용
+    'http://localhost:5000', // 백엔드 로컬 테스트용 (선택 사항)
+    // admin-dashboard 클라이언트도 추가해야 한다면 여기에 추가
+    // 'https://your-admin-dashboard.vercel.app',
+];
+
+
+
 // CORS 설정: Vercel 배포 시 CLIENT_URL 환경 변수를 사용합니다.
 // CLIENT_URL은 Vercel 프로젝트 환경 변수에 설정해야 합니다.
 app.use(cors({
-    origin: "*",
+    origin: function (origin, callback) {
+        // 요청의 origin이 allowedOrigins 배열에 있거나 origin이 없는 경우 (예: Postman 요청) 허용
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // <-- 중요: 인증 정보를 포함한 요청(쿠키, Authorization 헤더 등)을 허용
 }));
 
 // JSON 요청 본문 파싱 미들웨어
