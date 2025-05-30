@@ -8,6 +8,9 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken'); // <-- 새로 추가: JWT 토큰 생성을 위해
 const bcrypt = require('bcryptjs'); // <-- 새로 추가: 비밀번호 비교를 위해
 
+// --- 새로 추가: 인증 미들웨어 불러오기 ---
+const { auth, authorizeAdmin } = require('./middleware/auth');
+
 const app = express();
 // PORT는 로컬 개발 환경에서만 사용되며, Vercel에서는 무시됩니다.
 const PORT = process.env.PORT || 5000;
@@ -183,6 +186,20 @@ app.get('/materials/:qrCodeId', async (req, res) => {
     } catch (error) {
         console.error('소재 정보 조회 중 서버 오류 발생:', error);
         res.status(500).json({ message: '서버 오류 발생', error: error.message });
+    }
+});
+
+// --- 새로 추가: GET /users 엔드포인트 ---
+// 이 엔드포인트는 모든 사용자 목록을 반환하며, 인증과 관리자 권한이 필요합니다.
+app.get('/users', auth, authorizeAdmin, async (req, res) => {
+    console.log('사용자 목록 조회 요청 (관리자만)');
+    try {
+        // 비밀번호 필드를 제외하고 모든 사용자 조회
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('사용자 목록 조회 중 서버 오류 발생:', error);
+        res.status(500).json({ message: '사용자 목록을 가져오는 데 실패했습니다.', error: error.message });
     }
 });
 
