@@ -21,7 +21,7 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-UserSchema.set('toJSON', {
+userSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
     transform: function (doc, ret) {
