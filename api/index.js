@@ -21,6 +21,7 @@ const PORT = process.env.PORT || 5000;
 // process.env.CLIENT_URL 환경 변수를 사용하여 Vercel에 배포된 클라이언트 URL을 지정할 수 있습니다.
 const allowedOrigins = [
     'https://fabric-qr-system.vercel.app', // <-- 당신의 모바일 클라이언트 Vercel 도메인!
+    'https://fabric-admin-dashborad.vercel.app', // <-- 관리자 대시보드 도메인 추가
     'http://localhost:3000', // 로컬 개발용
     'http://localhost:5000', // 백엔드 로컬 테스트용 (선택 사항)
     // admin-dashboard 클라이언트도 추가해야 한다면 여기에 추가
