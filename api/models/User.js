@@ -21,6 +21,18 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
+UserSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        ret.id = ret._id;    // <-- _id를 id로 변환하는 핵심 부분
+        delete ret._id;      // _id 필드는 제거
+        delete ret.password; // 비밀번호 필드는 제거 (보안)
+        return ret;
+    }
+});
+
+
 // 비밀번호 검증 메서드
 userSchema.methods.comparePassword = async function(candidatePassword) {
     const bcrypt = require('bcryptjs');
