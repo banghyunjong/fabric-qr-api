@@ -237,6 +237,60 @@ app.get('/', (req, res) => {
     });
 });
 
+// --- 새로 추가: PUT /users/:id (사용자 정보 및 권한 수정) ---
+app.put('/users/:id', auth, authorizeAdmin, async (req, res) => {
+    const userId = req.params.id;
+    const { username, email, canScanQr, isAdmin } = req.body;
+    console.log(`사용자 정보 수정 요청: ID ${userId}`);
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+
+        // 비밀번호는 여기서 직접 변경하지 않음 (별도의 비밀번호 변경 엔드포인트 권장)
+        if (username) user.username = username;
+        if (email) user.email = email;
+        if (typeof canScanQr === 'boolean') user.canScanQr = canScanQr; // boolean 값만 허용
+        if (typeof isAdmin === 'boolean') user.isAdmin = isAdmin; // boolean 값만 허용
+
+        await user.save();
+        res.status(200).json({
+            message: '사용자 정보가 성공적으로 업데이트되었습니다.',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                canScanQr: user.canScanQr,
+                isAdmin: user.isAdmin
+            }
+        });
+
+    } catch (error) {
+        console.error('사용자 정보 업데이트 중 서버 오류 발생:', error);
+        res.status(500).json({ message: '사용자 정보를 업데이트하는 데 실패했습니다.', error: error.message });
+    }
+});
+
+// --- 새로 추가: DELETE /users/:id (사용자 삭제) ---
+app.delete('/users/:id', auth, authorizeAdmin, async (req, res) => {
+    const userId = req.params.id;
+    console.log(`사용자 삭제 요청: ID ${userId}`);
+
+    try {
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+        res.status(200).json({ message: '사용자가 성공적으로 삭제되었습니다.' });
+    } catch (error) {
+        console.error('사용자 삭제 중 서버 오류 발생:', error);
+        res.status(500).json({ message: '사용자를 삭제하는 데 실패했습니다.', error: error.message });
+    }
+});
+
+
 // Vercel 서버리스 함수로 내보내기 위한 핵심 부분
 // 이 라인이 Express 앱 인스턴스를 Vercel 런타임이 실행할 수 있도록 만듭니다.
 module.exports = app;
